@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        // Function to handle button press
+        function handleButtonPress(buttonName) {
+            // Send the button name to the server
+            fetch('/handle_button', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'pressed', button: buttonName }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+
+        // Function to handle button release
+        function handleButtonRelease(buttonName) {
+            // Send the button name to the server
+            fetch('/handle_button', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'released', button: buttonName}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <form>
+        <button onmousedown="handleButtonPress('button1')" onmouseup="handleButtonRelease('button1')">Button 1</button>
+        <button onmousedown="handleButtonPress('button2')" onmouseup="handleButtonRelease('button2')">Button 2</button>
+    </form>
+</body>
+</html>
