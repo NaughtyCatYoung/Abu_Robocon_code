@@ -3,32 +3,50 @@
 	
 <style>
 	.button {
-  background-color: #04AA6D;
   border: none;
   color: white;
-  padding: 60px;
+  padding: 50px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
+  font-size: 20px;
+  margin: 5px 5px;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+  vertical-align: text-top;
 }
 
 .button1 {border-radius: 2px;}
 .button2 {border-radius: 4px;}
 .button3 {border-radius: 8px;}
-.button4 {border-radius: 0px;}
-.button5 {border-radius: 50%;}
+.button4 {border-radius: 15px;background-color: black;}
+.button5 {border-radius: 50%;background-color: blue;}
 	</style>
+  <style>
+	.triangle-left {
+	width: 0;
+	height: 0;
+	border-top: 75px solid transparent;
+	border-right: 100px solid #555;
+	border-bottom: 75px solid transparent;
+}
+	  .triangle-right {
+	width: 0;
+	height: 0;
+	border-top: 75px solid transparent;
+	border-left: 100px solid #555;
+	border-bottom: 75px solid transparent;
+}
+
+
+  </style>
 <head>
-    <title>
-        Mousebot
-    </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body  style="position: fixed; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
 color:rgb(128, 128, 128);
-font-size: xx-large;">
+font-size: large;">
 	<script>
         // Function to handle button press
         function handleButtonPress(buttonName) {
@@ -43,10 +61,10 @@ font-size: xx-large;">
         }
 	</script>
 
-    <table width=100%, border="1">
+    <table width=100%, height=100%, border="0">
       <tbody>
         <tr>
-          <td width=2000><p style="text-align: center;">
+          <td colspan="2" width=5000><p style="text-align: center;">
         X: <span id="x_coordinate"> </span>
         Y: <span id="y_coordinate"> </span>
         Speed: <span id="speed"> </span> %
@@ -55,27 +73,69 @@ font-size: xx-large;">
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
+			<td>&nbsp;</td>
         </tr>
         <tr>
-          <td rowspan="3">   <canvas id="canvas" name="game"></canvas></td>
+			<td rowspan="3"></td>
+			<td rowspan="5" width=5000px>&nbsp;</td>
           <td ontouchstart='handleButtonPress("1")'
-          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+          <td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+			<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+			<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+			
         </tr>
         <tr>
-
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
+			
+			<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+          <td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+			<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+			<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+     
         </tr>
 		  <tr>
 
           
-		<td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
+		<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+          <td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+			<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
+			<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><button class="button button4",>1</button>
+        </td>
         </tr>
+		<tr>
+			<td rowspan="2" width=250>   <canvas id="canvas" name="game"></canvas></td>
+		  	
+          
+			<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><div class="triangle-left",></div>
+        </td>
+        <td></td>
+			<td ontouchstart='handleButtonPress("1")'
+          ontouchend='handleButtonPress("0")'><div class="triangle-right",></div>
+        </td>
+		  </tr>
       </tbody>
     </table>
 
@@ -118,7 +178,7 @@ font-size: xx-large;">
         function resize() {
             width = 250;
             radius = 50;
-            height = radius * 6.5;
+            height = radius * 5;
             ctx.canvas.width = width;
             ctx.canvas.height = height;
             background();
@@ -149,10 +209,20 @@ font-size: xx-large;">
         let paint = false;
 
         function getPosition(event) {
+            var rect = canvas.getBoundingClientRect();
+            var touch = event.touches[0];
+          
+            // Check if the touch event occurred within the bounds of the joystick
+            if (touch.clientX < rect.left ||
+                touch.clientX > rect.left + width ||
+                touch.clientY < rect.top ||
+                touch.clientY > rect.top + height) {
+              return;
+            }
             var mouse_x = event.clientX || event.touches[0].clientX;
             var mouse_y = event.clientY || event.touches[0].clientY;
             coord.x = mouse_x - canvas.offsetLeft-10;
-            coord.y = mouse_y - canvas.offsetTop-120;
+            coord.y = mouse_y - canvas.offsetTop-500;
         }
 
         function is_it_in_the_circle() {
@@ -164,6 +234,7 @@ font-size: xx-large;">
 
         function startDrawing(event) {
             paint = true;
+            
             getPosition(event);
             if (is_it_in_the_circle()) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -183,6 +254,8 @@ font-size: xx-large;">
             document.getElementById("y_coordinate").innerText = 0;
             document.getElementById("speed").innerText = 0;
             document.getElementById("angle").innerText = 0;
+
+            
             fetch('/handle_button', {
                   method: 'POST',
                   body: JSON.stringify({Action:"Motor",speed: 0, angle: 0}),
@@ -190,10 +263,23 @@ font-size: xx-large;">
                     'Content-Type': 'application/json'
                   }
                 });
+
+              
         }
 
         function Draw(event) {
 
+          var rect = canvas.getBoundingClientRect();
+            var touch = event.touches[0];
+          
+            // Check if the touch event occurred within the bounds of the joystick
+            if (touch.clientX < rect.left ||
+                touch.clientX > rect.left + width ||
+                touch.clientY < rect.top ||
+                touch.clientY > rect.top + height) {
+                  stopDrawing(event);
+              return;
+            }
             if (paint) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 background();
