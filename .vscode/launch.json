@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "c:/Users/witch/Desktop/Project/ABU 2024/Abu_Robocon_code",
+      "program": "c:/Users/witch/Desktop/Project/ABU 2024/Abu_Robocon_code/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "/home/youngrasp/.arduino15/packages/arduino/tools/avr-gdb/7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}

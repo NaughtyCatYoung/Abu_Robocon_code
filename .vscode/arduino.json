@@ -1,6 +1,6 @@
 {
     "configuration": "cpu=atmega2560",
     "board": "arduino:avr:mega",
-    "sketch": "TestPCA9685/TestPCA9685.ino",
+    "sketch": "PCA_pwm_test\\PCA_pwm_test.ino",
     "port": "/dev/ttyUSB0"
 }
