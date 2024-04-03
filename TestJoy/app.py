@@ -19,7 +19,7 @@ def handle_button():
         print(f"Speed: {sp} \nAngle: {ang}\n=================")
     elif action=='Button':
         command=request.json['button']
-        print(f">>>>>>>>>>>>>>>>>>>>>>>Button {command}")
+        print(f"Button {command}")
     else:print(f"Unknown Action: {action}") 
     # Process the button action here (e.g., perform some task)
     # Redirect back to the homepage
