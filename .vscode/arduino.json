@@ -1,6 +1,6 @@
 {
     "configuration": "cpu=atmega2560",
     "board": "arduino:avr:mega",
-    "sketch": "PCA_pwm_test\\PCA_pwm_test.ino",
+    "sketch": "Control_motor_encoder\\Control_motor_encoder.ino",
     "port": "/dev/ttyUSB0"
 }
