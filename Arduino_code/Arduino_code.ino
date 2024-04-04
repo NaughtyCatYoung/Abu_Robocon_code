@@ -9,14 +9,19 @@ long SERVOMAX =600; // This is the 'maximum' pulse length count (out of 4096)
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 
+
+PIDController pos1_pid,pos2_pid; 
+
 class Motor
 {
 private:
     int RPWM,LPWM;
 public:
+    int speed=0;
     Motor(int RPWM,int LPWM):RPWM(RPWM),LPWM(LPWM){;}
-    void setspeed(int sp)//sp range(0,4095)
+    void set_speed(int sp)//sp range(-4095,4059)
     {
+        speed=sp;
         pwm.setPWMFreq(1600);
         if(sp>0)
         {   
@@ -85,19 +90,35 @@ public:
     }
 
 };
-int pos1,pos2;
+int encoder_pos1=0,encoder_pos2=0;
 
 
 void encoder1()
 {
-    if(digitalRead(26)==HIGH)pos1++;
-    else pos1--;
+    if(digitalRead(26)==HIGH)encoder_pos1++;
+    else encoder_pos1--;
 }
 void encoder2()
 {  
-    if(digitalRead(27)==HIGH)pos2++;
-    else pos2--; 
+    if(digitalRead(27)==HIGH)encoder_pos2++;
+    else encoder_pos2--; 
 }
+
+Motor wheel1(0,1);
+Motor wheel2(2,3);
+Motor rotate1(4,5);
+Motor rotate2(6,7);
+ /*
+    2 normal DC motor and 2 DC motor with encoder
+    Encoder have pin (2,26) and (3,27)
+*/
+Stepper_motor Stepper1(22,23);
+//  Just a stepper motor
+
+Servo_Hand Left_hand(8),Right_hand(9);
+//  2 Servo to control hands
+
+
 
 void setup()
 {
@@ -107,21 +128,22 @@ void setup()
     pwm.setPWMFreq(1600);
     Wire.setClock(400000);
 
-    Motor wheel1(1,2),wheel2(3,4),rotate1(5,6),rotate2(7,8);
     
+    
+    pinMode(2,INPUT_PULLUP);
+    pinMode(3,INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(2), encoder1, RISING);
     attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
-    /*
-    2 normal DC motor and 2 DC motor with encoder
-    Encoder have pin (2,26) and (3,27)
-    */
+    pos1_pid.begin();
+    pos1_pid.tune(1,0.025,0.1);
+    pos1_pid.limit(-4095,4095);
 
-    Stepper_motor Stepper1(22,23);
-    //Just a stepper motor
+    pos2_pid.begin();
+    pos2_pid.tune(1,0.025,0.1);
+    pos2_pid.limit(-4095,4095);
 
-    Servo_Hand Left_hand(9),Right_hand(10);
-    //2 Servo to control hands
+   
 
 
 
@@ -154,6 +176,20 @@ Vector<String> split_string(String &str) {
     }
     return ret;
 }
+int string_to_int(String s)
+{   
+    if(s.length()==0)
+    return 0;
+    int ans=0;
+    for(auto i : s)
+    {
+        if(i=='-')continue;
+        ans*=10;
+        ans+=i-'0';
+    }
+    if(s[0]=='-')ans=-ans;
+    return ans;
+}
 
 
 
@@ -185,6 +221,18 @@ void loop()
         }
         else
         {
+            if(cmds[1]=="1")
+            {
+                if(cmds[2]=="Forward")
+                wheel1.set_speed(string_to_int(cmds[3]));
+                else wheel1.set_speed(-string_to_int(cmds[3]));
+            }
+            else if(cmds[1]=="2")
+            {
+                if(cmds[2]=="Forward")
+                wheel2.set_speed(string_to_int(cmds[3]));
+                else wheel2.set_speed(-string_to_int(cmds[3]));
+            }
             ;
         }
     }
@@ -197,6 +245,14 @@ void loop()
         }
         else
         {
+            if(cmds[1]=="1")
+            {
+                pos1_pid.setpoint(string_to_int(cmds[2]));
+            }
+            else if(cmds[1]=="2")
+            {
+                pos2_pid.setpoint(string_to_int(cmds[2]));
+            }
             ;
         }
     }
@@ -226,16 +282,18 @@ void loop()
         }
     }
 
+    int motor_encoder1_power=pos1_pid.compute(encoder_pos1);
+    int motor_encoder2_power=pos2_pid.compute(encoder_pos2);
+
+    rotate1.set_speed(motor_encoder1_power);
+    rotate2.set_speed(motor_encoder2_power);
 
 
 
+    Serial.print(wheel1.speed);Serial.print("\t");
+    Serial.print(wheel2.speed);Serial.print("\t");
+    Serial.print(rotate1.speed);Serial.print("\t");
+    Serial.print(rotate2.speed);Serial.print("\t");
 
-    
-
-
-
-
-
-
-
+    Serial.println("");
 }

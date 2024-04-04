@@ -1,6 +1,6 @@
 #include <PIDController.h>
 volatile long int encoder_pos = 0;
-PIDController pos_pid; 
+
 int motor_value = 255;
 unsigned int integerValue=0;  // Max value is 65535
 char incomingByte;
