@@ -7,7 +7,7 @@
 long SERVOMIN =150; // This is the 'minimum' pulse length count (out of 4096)
 long SERVOMAX =600; // This is the 'maximum' pulse length count (out of 4096)
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-
+String storage_array[10];
 
 
 PIDController pos1_pid,pos2_pid; 
@@ -136,11 +136,11 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
     pos1_pid.begin();
-    pos1_pid.tune(1,0.025,0.1);
+    pos1_pid.tune(1,0.025,0);
     pos1_pid.limit(-4095,4095);
 
     pos2_pid.begin();
-    pos2_pid.tune(1,0.025,0.1);
+    pos2_pid.tune(1,0.025,0);
     pos2_pid.limit(-4095,4095);
 
    
@@ -154,14 +154,17 @@ void setup()
 
 Vector<String> split_string(String &str) {
     Vector<String> ret={};
+    ret.setStorage(storage_array);
     int len=str.length();
     int ind=0;
     String word="";
     while(ind<len){
         if(str[ind]==' ')
         {   
-            ret.push_back(word);
-            word="";
+            if(word.length()>0)
+            {ret.push_back(word);
+            // Serial.println(word);
+            word="";}
         }
         else
         {
@@ -196,22 +199,22 @@ int string_to_int(String s)
 void loop()
 {
     String command = Serial.readStringUntil('\n');
-    Vector<String>  cmds = split_string(command);
+    command.trim();
+    Serial.println(command); 
 
+    Vector<String>  cmds = split_string(command);
     /*
     DC <index> <forward/backward>  <speed>  #control DC motor
     DC_encoder <index> <angle>
     Stepper <index> <forward/backward>  <step> #control stepper motor
     Servo <index> <angle> #control servo
     */
-
-
     int sz=cmds.size();
-    // cout<<sz<<"\n";
-    if(sz==0)
+    Serial.println(cmds.size());
+    Serial.println(sz);
+    if(sz!=0)
     {
-        return 0;
-    }
+        Serial.println("It finally works");
     if(cmds[0]=="DC")
     {
         Serial.println("DC motor control");
@@ -281,7 +284,7 @@ void loop()
             ;
         }
     }
-
+    }
     int motor_encoder1_power=pos1_pid.compute(encoder_pos1);
     int motor_encoder2_power=pos2_pid.compute(encoder_pos2);
 
@@ -294,6 +297,8 @@ void loop()
     Serial.print(wheel2.speed);Serial.print("\t");
     Serial.print(rotate1.speed);Serial.print("\t");
     Serial.print(rotate2.speed);Serial.print("\t");
+    Serial.print(encoder_pos1);Serial.print("\t");
+    Serial.print(encoder_pos2);Serial.print("\t");
 
     Serial.println("");
 }
