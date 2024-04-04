@@ -93,7 +93,7 @@ int main()
             cout<<"Step : "<<stoi(cmds[3]); 
         }
     }
-    else if(cmds[0]=="DC_encoder")
+    else if(cmds[0]=="Servo")
     {
         cout<<"Control servo\n";
         if(sz!=3)
