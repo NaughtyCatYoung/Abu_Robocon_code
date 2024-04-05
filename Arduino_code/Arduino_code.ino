@@ -104,16 +104,19 @@ void encoder2()
     else encoder_pos2--; 
 }
 
+
+//Motor  motorname(RPWM,LPWM);
 Motor wheel1(0,1);
 Motor wheel2(2,3);
 Motor rotate1(4,5);
 Motor rotate2(6,7);
- /*
+/*
     2 normal DC motor and 2 DC motor with encoder
     Encoder have pin (2,26) and (3,27)
 */
+//Stepper_motor steppermotorname(pul,dir);
 Stepper_motor Stepper1(22,23);
-//  Just a stepper motor
+Stepper_motor Stepper2(24,25);
 
 Servo_Hand Left_hand(8),Right_hand(9);
 //  2 Servo to control hands

@@ -1,4 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for
+import serial
+
+ser = serial.Serial(
+    port = '/dev/ttyUSB0',
+    baudrate = 115200,
+    timeout = 10,
+    xonxoff = False
+)
 
 import logging
 
@@ -14,9 +22,17 @@ def index():
 def handle_button():
     action=request.json['Action']
     if action=='Motor':
-        sp = request.json['speed']
-        ang = request.json['angle']
+        sp = int(request.json['speed']*4095/100)
+        ang = (request.json['angle']-90)%360
         print(f"Speed: {sp} \nAngle: {ang}\n=================")
+        val = ser.write(f"DC 1 Forward {sp}".encode(encoding = 'ascii', errors = 'strict'))
+        print("Bytes written: ", val)
+        val = ser.write(f"DC 2 Forward {sp}".encode(encoding = 'ascii', errors = 'strict'))
+        print("Bytes written: ", val)
+        val = ser.write(f"DC_encoder 1 {ang}".encode(encoding = 'ascii', errors = 'strict'))
+        print("Bytes written: ", val)
+        val = ser.write(f"DC_encoder 2 {ang}".encode(encoding = 'ascii', errors = 'strict'))
+        print("Bytes written: ", val)
     elif action=='Button':
         command=request.json['button']
         print(f"Button {command}")
