@@ -91,7 +91,7 @@ public:
 
 };
 int encoder_pos1=0,encoder_pos2=0;
-
+int encoder_target1=0,encoder_target2=0;
 
 void encoder1()
 {
@@ -139,11 +139,11 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
     pos1_pid.begin();
-    pos1_pid.tune(1,0.025,0);
+    pos1_pid.tune(1000,0,0);
     pos1_pid.limit(-4095,4095);
 
     pos2_pid.begin();
-    pos2_pid.tune(1,0.025,0);
+    pos2_pid.tune(1000,0,0);
     pos2_pid.limit(-4095,4095);
 
    
@@ -289,7 +289,7 @@ void loop()
     }
     }
     int motor_encoder1_power=pos1_pid.compute(encoder_pos1);
-    int motor_encoder2_power=pos2_pid.compute(encoder_pos2);
+    int motor_encoder2_power=-pos2_pid.compute(encoder_pos2);
 
     rotate1.set_speed(motor_encoder1_power);
     rotate2.set_speed(motor_encoder2_power);
