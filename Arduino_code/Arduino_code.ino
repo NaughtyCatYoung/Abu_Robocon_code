@@ -280,6 +280,21 @@ void loop()
         }
         else
         {
+            if(cmds[1]=="1")
+            {
+                if(cmds[3]=="Forward")
+                Stepper1.step(string_to_int(cmds[2]),true);
+                else 
+                Stepper1.step(string_to_int(cmds[2]),false);
+
+            }
+            else if(cmds[1]=="2")
+            {
+                if(cmds[3]=="Forward")
+                Stepper2.step(string_to_int(cmds[2]),true);
+                else 
+                Stepper2.step(string_to_int(cmds[2]),false);
+            }
             ;
         }
     }
