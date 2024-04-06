@@ -90,21 +90,6 @@ public:
     }
 
 };
-int encoder_pos1=0,encoder_pos2=0;
-int encoder_target1=0,encoder_target2=0;
-
-void encoder1()
-{
-    if(digitalRead(26)==HIGH)encoder_pos1++;
-    else encoder_pos1--;
-}
-void encoder2()
-{  
-    if(digitalRead(27)==HIGH)encoder_pos2++;
-    else encoder_pos2--; 
-}
-
-
 //Motor  motorname(RPWM,LPWM);
 Motor wheel1(0,1);
 Motor wheel2(2,3);
@@ -121,11 +106,32 @@ Stepper_motor Stepper2(24,25);
 Servo_Hand Left_hand(8),Right_hand(9);
 //  2 Servo to control hands
 
+int encoder_pos1=0,encoder_pos2=0;
+int encoder_target1=0,encoder_target2=0;
+
+void encoder1()
+{
+    if(digitalRead(26)==HIGH)encoder_pos1++;
+    else encoder_pos1--;
+    // if(encoder_pos1==encoder_target1)
+    // rotate1.set_speed(0);
+}
+void encoder2()
+{  
+    if(digitalRead(27)==HIGH)encoder_pos2++;
+    else encoder_pos2--; 
+    // if(encoder_pos2==encoder_target2)
+    // rotate2.set_speed(0);
+}
+
+
+
 
 
 void setup()
 {
     Serial.begin(115200);
+    Serial.setTimeout(50);
     pwm.begin();
     pwm.setOscillatorFrequency(27000000);
     pwm.setPWMFreq(1600);
@@ -139,11 +145,11 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
     pos1_pid.begin();
-    pos1_pid.tune(1000,0,0);
+    pos1_pid.tune(1500,0.00,0);
     pos1_pid.limit(-4095,4095);
 
     pos2_pid.begin();
-    pos2_pid.tune(1000,0,0);
+    pos2_pid.tune(1500,0.00,0);
     pos2_pid.limit(-4095,4095);
 
    
@@ -253,11 +259,13 @@ void loop()
         {
             if(cmds[1]=="1")
             {
-                pos1_pid.setpoint(string_to_int(cmds[2]));
+                encoder_target1=string_to_int(cmds[2]);
+                pos1_pid.setpoint(-encoder_target1);
             }
             else if(cmds[1]=="2")
             {
-                pos2_pid.setpoint(string_to_int(cmds[2]));
+                encoder_target2=string_to_int(cmds[2]);
+                pos2_pid.setpoint(-encoder_target2);
             }
             ;
         }
@@ -294,6 +302,25 @@ void loop()
     rotate1.set_speed(motor_encoder1_power);
     rotate2.set_speed(motor_encoder2_power);
 
+    // if(encoder_target1>encoder_pos1)
+    // {
+    //     rotate1.set_speed(1000);
+    // }
+    // else if(encoder_target1<encoder_pos1)
+    // {
+    //     rotate1.set_speed(-1000);
+    // }
+    // else rotate1.set_speed(0);
+
+    // if(encoder_target2>encoder_pos2)
+    // {
+    //     rotate2.set_speed(4095);
+    // }
+    // else if(encoder_target2<encoder_pos2)
+    // {
+    //     rotate2.set_speed(-4095);
+    // }
+    // else rotate2.set_speed(0);
 
 
     Serial.print(wheel1.speed);Serial.print("\t");
@@ -302,6 +329,8 @@ void loop()
     Serial.print(rotate2.speed);Serial.print("\t");
     Serial.print(encoder_pos1);Serial.print("\t");
     Serial.print(encoder_pos2);Serial.print("\t");
+    Serial.print(encoder_target1);Serial.print("\t");
+    Serial.print(encoder_target2);Serial.print("\t");
 
     Serial.println("");
 }

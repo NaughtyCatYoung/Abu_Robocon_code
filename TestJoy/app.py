@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import serial
 
 ser = serial.Serial(
-    port = '/dev/ttyUSB1',
+    port = '/dev/ttyUSB0',
     baudrate = 115200,
     timeout = 10,
     xonxoff = False
@@ -24,15 +24,17 @@ def handle_button():
     if action=='Motor':
         sp = int(request.json['speed']*4095/100*0.5)
         ang = int(((request.json['angle']-90)%360)*140/360)
-        print(f"Speed: {sp} \nAngle: {ang}\n=================")
-        val = ser.write(f"DC 1 Forward {sp}\n".encode(encoding = 'ascii', errors = 'strict'))
-        print("Bytes written: ", val)
-        val = ser.write(f"DC 2 Forward {sp}\n".encode(encoding = 'ascii', errors = 'strict'))
-        print("Bytes written: ", val)
+        if (request.json['angle']==0 and sp==0):
+            ang=0
+        # print(f"Speed: {sp} \nAngle: {ang}\n=================")
+        # val = ser.write(f"DC 1 Forward {sp}\n".encode(encoding = 'ascii', errors = 'strict'))
+        # print("Bytes written: ", val)
+        # val = ser.write(f"DC 2 Forward {sp}\n".encode(encoding = 'ascii', errors = 'strict'))
+        # print("Bytes written: ", val)
         val = ser.write(f"DC_encoder 1 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
         print("Bytes written: ", val)
-        val = ser.write(f"DC_encoder 2 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
-        print("Bytes written: ", val)
+        # val = ser.write(f"DC_encoder 2 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
+        # print("Bytes written: ", val)
     elif action=='Button':
         command=request.json['button']
         print(f"Button {command}")
