@@ -219,8 +219,8 @@ void loop()
     Servo <index> <angle> #control servo
     */
     int sz=cmds.size();
-    Serial.println(cmds.size());
-    Serial.println(sz);
+    // Serial.println(cmds.size());
+    // Serial.println(sz);
     if(sz!=0)
     {
         Serial.println("It finally works");
@@ -338,14 +338,14 @@ void loop()
     // else rotate2.set_speed(0);
 
 
-    Serial.print(wheel1.speed);Serial.print("\t");
-    Serial.print(wheel2.speed);Serial.print("\t");
-    Serial.print(rotate1.speed);Serial.print("\t");
-    Serial.print(rotate2.speed);Serial.print("\t");
-    Serial.print(encoder_pos1);Serial.print("\t");
-    Serial.print(encoder_pos2);Serial.print("\t");
-    Serial.print(encoder_target1);Serial.print("\t");
-    Serial.print(encoder_target2);Serial.print("\t");
+    // Serial.print(wheel1.speed);Serial.print("\t");
+    // Serial.print(wheel2.speed);Serial.print("\t");
+    // Serial.print(rotate1.speed);Serial.print("\t");
+    // Serial.print(rotate2.speed);Serial.print("\t");
+    // Serial.print(encoder_pos1);Serial.print("\t");
+    // Serial.print(encoder_pos2);Serial.print("\t");
+    // Serial.print(encoder_target1);Serial.print("\t");
+    // Serial.print(encoder_target2);Serial.print("\t");
 
-    Serial.println("");
+    // Serial.println("");
 }

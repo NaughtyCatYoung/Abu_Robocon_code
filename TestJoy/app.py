@@ -33,11 +33,21 @@ def handle_button():
         # print("Bytes written: ", val)
         val = ser.write(f"DC_encoder 1 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
         print("Bytes written: ", val)
-        # val = ser.write(f"DC_encoder 2 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
-        # print("Bytes written: ", val)
+        val = ser.write(f"DC_encoder 2 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
+        print("Bytes written: ", val)
     elif action=='Button':
         command=request.json['button']
         print(f"Button {command}")
+        if(command=="8"):
+            val = ser.write(f"Stepper 1 500 Forward\n".encode(encoding = 'ascii', errors = 'strict'))
+            print("Bytes written: ", val)
+            val = ser.write(f"Stepper 2 500 Backward\n".encode(encoding = 'ascii', errors = 'strict'))
+            print("Bytes written: ", val)
+        elif(command=="9"):
+            val = ser.write(f"Stepper 1 500 Backward\n".encode(encoding = 'ascii', errors = 'strict'))
+            print("Bytes written: ", val)
+            val = ser.write(f"Stepper 2 500 Forward\n".encode(encoding = 'ascii', errors = 'strict'))
+            print("Bytes written: ", val)
     else:print(f"Unknown Action: {action}") 
     # Process the button action here (e.g., perform some task)
     # Redirect back to the homepage
