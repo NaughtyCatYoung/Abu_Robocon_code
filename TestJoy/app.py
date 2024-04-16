@@ -21,20 +21,17 @@ def index():
 @app.route('/handle_button', methods=['POST'])
 def handle_button():
     action=request.json['Action']
+    ser.write(f"\n".encode(encoding = 'ascii', errors = 'strict'))
     if action=='Motor':
         sp = int(request.json['speed']*4095/100*0.5)
         ang = int(((request.json['angle']-90)%360)*140/360)
         if (request.json['angle']==0 and sp==0):
             ang=0
         # print(f"Speed: {sp} \nAngle: {ang}\n=================")
-        # val = ser.write(f"DC 1 Forward {sp}\n".encode(encoding = 'ascii', errors = 'strict'))
-        # print("Bytes written: ", val)
-        # val = ser.write(f"DC 2 Forward {sp}\n".encode(encoding = 'ascii', errors = 'strict'))
-        # print("Bytes written: ", val)
-        val = ser.write(f"DC_encoder 1 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
-        print("Bytes written: ", val)
-        val = ser.write(f"DC_encoder 2 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
-        print("Bytes written: ", val)
+        # ser.write(f"DC 1 Forward {sp}\n".encode(encoding = 'ascii', errors = 'strict'))
+        # ser.write(f"DC 2 Forward {sp}\n".encode(encoding = 'ascii', errors = 'strict'))
+        ser.write(f"DC_encoder 1 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
+        ser.write(f"DC_encoder 2 {ang}\n".encode(encoding = 'ascii', errors = 'strict'))
     elif action=='Button':
         command=request.json['button']
         print(f"Button {command}")

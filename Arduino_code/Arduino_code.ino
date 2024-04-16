@@ -131,7 +131,7 @@ void encoder2()
 void setup()
 {
     Serial.begin(115200);
-    Serial.setTimeout(50);
+    Serial.setTimeout(20);
     pwm.begin();
     pwm.setOscillatorFrequency(27000000);
     pwm.setPWMFreq(1600);
@@ -145,11 +145,11 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
     pos1_pid.begin();
-    pos1_pid.tune(1500,0.00,0);
+    pos1_pid.tune(2000,0.00,0);
     pos1_pid.limit(-4095,4095);
 
     pos2_pid.begin();
-    pos2_pid.tune(1500,0.00,0);
+    pos2_pid.tune(2000,0.00,0);
     pos2_pid.limit(-4095,4095);
 
    
@@ -317,35 +317,13 @@ void loop()
     rotate1.set_speed(motor_encoder1_power);
     rotate2.set_speed(motor_encoder2_power);
 
-    // if(encoder_target1>encoder_pos1)
-    // {
-    //     rotate1.set_speed(1000);
-    // }
-    // else if(encoder_target1<encoder_pos1)
-    // {
-    //     rotate1.set_speed(-1000);
-    // }
-    // else rotate1.set_speed(0);
+    Serial.print(wheel1.speed);Serial.print("\t");
+    Serial.print(wheel2.speed);Serial.print("\t");
+    Serial.print(rotate1.speed);Serial.print("\t");
+    Serial.print(rotate2.speed);Serial.print("\t");
+    Serial.print(encoder_pos1);Serial.print("\t");
+    Serial.print(encoder_pos2);Serial.print("\t");
+    Serial.print(encoder_target1);Serial.print("\t");
+    Serial.print(encoder_target2);Serial.print("\t");
 
-    // if(encoder_target2>encoder_pos2)
-    // {
-    //     rotate2.set_speed(4095);
-    // }
-    // else if(encoder_target2<encoder_pos2)
-    // {
-    //     rotate2.set_speed(-4095);
-    // }
-    // else rotate2.set_speed(0);
-
-
-    // Serial.print(wheel1.speed);Serial.print("\t");
-    // Serial.print(wheel2.speed);Serial.print("\t");
-    // Serial.print(rotate1.speed);Serial.print("\t");
-    // Serial.print(rotate2.speed);Serial.print("\t");
-    // Serial.print(encoder_pos1);Serial.print("\t");
-    // Serial.print(encoder_pos2);Serial.print("\t");
-    // Serial.print(encoder_target1);Serial.print("\t");
-    // Serial.print(encoder_target2);Serial.print("\t");
-
-    // Serial.println("");
 }
