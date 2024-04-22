@@ -1,17 +1,18 @@
 #include <Vector.h>
 #include <PIDController.h>
-#include<string.h>
+#include <string.h>
 #include <util/atomic.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
-long SERVOMIN =150; // This is the 'minimum' pulse length count (out of 4096)
-long SERVOMAX =600; // This is the 'maximum' pulse length count (out of 4096)
+
+#define SERVOMIN 150 // This is the 'minimum' pulse length count (out of 4096)
+#define SERVOMAX 600 // This is the 'maximum' pulse length count (out of 4096)
+
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 String storage_array[10];
 
 
-PIDController pos1_pid,pos2_pid; 
-
+//*Declare class for easy to read code
 class Motor
 {
 private:
@@ -90,18 +91,26 @@ public:
     }
 
 };
+
+
+
 //Motor  motorname(RPWM,LPWM);
 Motor wheel1(0,1);
 Motor wheel2(2,3);
 Motor rotate1(4,5);
 Motor rotate2(6,7);
+
 /*
     2 normal DC motor and 2 DC motor with encoder
     Encoder have pin (2,26) and (3,27)
 */
+PIDController pos1_pid,pos2_pid;
+
+
 //Stepper_motor steppermotorname(pul,dir);
-Stepper_motor Stepper1(22,23);
-Stepper_motor Stepper2(24,25);
+Stepper_motor Stepper1(22,23);  //Front
+Stepper_motor Stepper2(24,25);  //Back
+Stepper_motor Stepper3(26,27);  //Side
 
 Servo_Hand Left_hand(8),Right_hand(9);
 //  2 Servo to control hands
@@ -109,36 +118,18 @@ Servo_Hand Left_hand(8),Right_hand(9);
 int encoder_pos1=0,encoder_pos2=0;
 int encoder_target1=0,encoder_target2=0;
 
-void encoder1()
-{
-    if(digitalRead(26)==HIGH)encoder_pos1++;
-    else encoder_pos1--;
-    // if(encoder_pos1==encoder_target1)
-    // rotate1.set_speed(0);
-}
-void encoder2()
-{  
-    if(digitalRead(27)==HIGH)encoder_pos2++;
-    else encoder_pos2--; 
-    // if(encoder_pos2==encoder_target2)
-    // rotate2.set_speed(0);
-}
-
-
-
-
+void encoder1(){if(digitalRead(26)==HIGH)encoder_pos1++;else encoder_pos1--;}
+void encoder2(){if(digitalRead(27)==HIGH)encoder_pos2++;else encoder_pos2--;}
 
 void setup()
 {
     Serial.begin(115200);
-    Serial.setTimeout(20);
+    Serial.setTimeout(10);
     pwm.begin();
     pwm.setOscillatorFrequency(27000000);
     pwm.setPWMFreq(1600);
     Wire.setClock(400000);
 
-    
-    
     pinMode(2,INPUT_PULLUP);
     pinMode(3,INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(2), encoder1, RISING);
@@ -152,16 +143,11 @@ void setup()
     pos2_pid.tune(2000,0.00,0);
     pos2_pid.limit(-4095,4095);
 
-   
-
-
-
     delay(1000);
 }
 
-
-
 Vector<String> split_string(String &str) {
+    //Split string into Vector of string
     Vector<String> ret={};
     ret.setStorage(storage_array);
     int len=str.length();
@@ -171,9 +157,10 @@ Vector<String> split_string(String &str) {
         if(str[ind]==' ')
         {   
             if(word.length()>0)
-            {ret.push_back(word);
-            // Serial.println(word);
-            word="";}
+            {
+                ret.push_back(word);
+                word="";
+            }
         }
         else
         {
@@ -294,6 +281,13 @@ void loop()
                 Stepper2.step(string_to_int(cmds[2]),true);
                 else 
                 Stepper2.step(string_to_int(cmds[2]),false);
+            }
+            else if(cmds[1]=="3")
+            {
+                if(cmds[3]=="Forward")
+                Stepper3.step(string_to_int(cmds[2]),true);
+                else 
+                Stepper3.step(string_to_int(cmds[2]),false);
             }
             ;
         }
