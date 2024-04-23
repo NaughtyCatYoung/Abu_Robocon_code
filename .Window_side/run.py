@@ -46,8 +46,10 @@ try:
                     if(x_axis<0):
                         angle=(180+angle)%360
                     print(f"Angle = {angle}")
-                    command="\nDC_encoder 1 "+str(int(angle))+"\n"
+                    command="\nDC_encoder 1 "+str(int(angle)*1200/360)+"\n"
                     client_socket.sendall(command.encode())
+                    
+                    
                 elif(event.axis==5):
                     speed=(axes[5]+1)*2048
                     print(f"Speed = {speed}")

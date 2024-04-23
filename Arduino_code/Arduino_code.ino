@@ -108,9 +108,9 @@ PIDController pos1_pid,pos2_pid;
 
 
 //Stepper_motor steppermotorname(pul,dir);
-Stepper_motor Stepper1(22,23);  //Front
-Stepper_motor Stepper2(24,25);  //Back
-Stepper_motor Stepper3(26,27);  //Side
+Stepper_motor Stepper1(22,23);  //Lift
+Stepper_motor Stepper2(24,25);  //Left
+Stepper_motor Stepper3(33,34);  //Right
 
 Servo_Hand Left_hand(8),Right_hand(9);
 //  2 Servo to control hands
