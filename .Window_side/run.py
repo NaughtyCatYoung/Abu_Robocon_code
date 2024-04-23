@@ -46,7 +46,9 @@ try:
                     if(x_axis<0):
                         angle=(180+angle)%360
                     print(f"Angle = {angle}")
-                    command="\nDC_encoder 1 "+str(int(angle)*1200/360)+"\n"
+                    command="\nDC_encoder 1 "+str(int(angle)*1800/360)+"\n"
+                    client_socket.sendall(command.encode())
+                    command="\nDC_encoder 2 "+str(int(angle)*1200/360)+"\n"
                     client_socket.sendall(command.encode())
                     
                     
@@ -54,6 +56,8 @@ try:
                     speed=(axes[5]+1)*2048
                     print(f"Speed = {speed}")
                     command=f"\nDC 1 Forward {int(speed)}\n"
+                    client_socket.sendall(command.encode())
+                    command=f"\nDC 2 Forward {int(speed)}\n"
                     client_socket.sendall(command.encode())
             elif event.type == pygame.JOYBUTTONDOWN:
                 print("Button", event.button, "down.")
