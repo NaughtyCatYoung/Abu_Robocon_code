@@ -209,10 +209,15 @@ void loop()
 {
     String command = Serial.readStringUntil('\n');
     command.trim();
-    Serial.println(command); 
+    // Serial.println(command); 
 
     Vector<String>  cmds = split_string(command);
-
+    /*
+    DC <index> <forward/backward>  <speed>  #control DC motor
+    DC_encoder <index> <angle>
+    Stepper <index> <forward/backward>  <step> #control stepper motor
+    Servo <index> <angle> #control servo
+    */
     int sz=cmds.size();
     if(sz!=0)
     {
