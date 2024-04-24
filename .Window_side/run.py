@@ -1,6 +1,7 @@
 import socket
 import pygame
 import math
+import time
 # Raspberry Pi's IP address and port
 HOST = '192.168.0.101'  # Replace with your Raspberry Pi's IP address
 PORT = 12345            # Replace with the port number you chose
@@ -30,42 +31,80 @@ else:
     
 #================================================================
 try:
+    axes = [joystick.get_axis(i) for i in range(joystick.get_numaxes())]
+    buttons = [joystick.get_button(i) for i in range(joystick.get_numbuttons())]
+    hat = joystick.get_hat(0)
+    command=f"\nDC 1 Forward 0\n"
+    client_socket.sendall(command.encode())
+    time.sleep(0.01)
+    command=f"\nDC 2 Forward 0\n"
+    client_socket.sendall(command.encode())
+    time.sleep(0.01)
     while True:
-        for event in pygame.event.get():
-            #update value
-            axes = [joystick.get_axis(i) for i in range(joystick.get_numaxes())]
-            buttons = [joystick.get_button(i) for i in range(joystick.get_numbuttons())]
-            hat = joystick.get_hat(0)
-            if event.type == pygame.JOYAXISMOTION:
-                # print("Axis", event.axis, "Value:", int(event.value*4096))
-                if(event.axis==0 or event.axis==1):
-                    #calculate angle
-                    x_axis=axes[0]
-                    y_axis=-axes[1]
-                    angle=(math.degrees(math.atan(y_axis/x_axis)))%360
-                    if(x_axis<0):
-                        angle=(180+angle)%360
-                    print(f"Angle = {angle}")
-                    command="\nDC_encoder 1 "+str(int(angle)*1800/360)+"\n"
-                    client_socket.sendall(command.encode())
-                    command="\nDC_encoder 2 "+str(int(angle)*1200/360)+"\n"
-                    client_socket.sendall(command.encode())
+        if(axes!=[joystick.get_axis(i) for i in range(joystick.get_numaxes())]):
+            new_axes=[joystick.get_axis(i) for i in range(joystick.get_numaxes())]
+            if(new_axes[0]!=axes[0] or new_axes[1]!=axes[1]):
+                # calculate angle
+                x_axis=new_axes[0]
+                y_axis=-new_axes[1]
+                angle=(math.degrees(math.atan(y_axis/x_axis)))%360
+                if(x_axis<0):
+                    angle=(180+angle)%360
+                print(f"Angle = {angle}")
+                command=f"\nDC_encoder 1 {str(int(int(angle)*1200/360))}\n"
+                client_socket.sendall(command.encode())
+                time.sleep(0.02)
+                command=f"\nDC_encoder 2 {str(int(int(angle)*1200/360))}\n"
+                client_socket.sendall(command.encode())
+                time.sleep(0.02)
+            elif(new_axes[5]!=axes[5]):
+                speed=min(255,(new_axes[5]+1)/2*255)
+                print(f"Speed = {speed}")
+                command=f"\nDC 1 Forward {max(min(int(speed),255),0)}\n"
+                client_socket.sendall(command.encode())
+                time.sleep(0.01)
+                command=f"\nDC 2 Forward {max(min(int(speed),255),0)}\n"
+                client_socket.sendall(command.encode())
+                time.sleep(0.01)
+    #     for event in pygame.event.get():
+    #         #update value
+    #         axes = [joystick.get_axis(i) for i in range(joystick.get_numaxes())]
+    #         buttons = [joystick.get_button(i) for i in range(joystick.get_numbuttons())]
+    #         hat = joystick.get_hat(0)
+    #         if event.type == pygame.JOYAXISMOTION:
+    #             # print("Axis", event.axis, "Value:", int(event.value*4096))
+    #             if(event.axis==0 or event.axis==1):
+    #                 #calculate angle
+    #                 x_axis=axes[0]
+    #                 y_axis=-axes[1]
+    #                 angle=(math.degrees(math.atan(y_axis/x_axis)))%360
+    #                 if(x_axis<0):
+    #                     angle=(180+angle)%360
+    #                 print(f"Angle = {angle}")
+    #                 command=f"\nDC_encoder 1 {str(int(int(angle)*1200/360))}\n"
+    #                 client_socket.sendall(command.encode())
+    #                 time.sleep(0.02)
+    #                 command=f"\nDC_encoder 2 {str(int(int(angle)*1200/360))}\n"
+    #                 client_socket.sendall(command.encode())
+    #                 time.sleep(0.01)
                     
                     
-                elif(event.axis==5):
-                    speed=(axes[5]+1)*2048
-                    print(f"Speed = {speed}")
-                    command=f"\nDC 1 Forward {int(speed)}\n"
-                    client_socket.sendall(command.encode())
-                    command=f"\nDC 2 Forward {int(speed)}\n"
-                    client_socket.sendall(command.encode())
-            elif event.type == pygame.JOYBUTTONDOWN:
-                print("Button", event.button, "down.")
-            elif event.type == pygame.JOYBUTTONUP:
-                print("Button", event.button, "up.")
-            elif event.type == pygame.JOYHATMOTION:
-                print("Hat", event.hat, "Value:", event.value)
-    
+    #             elif(event.axis==5):
+    #                 speed=min(255,(axes[5]+1)/2*255)
+    #                 print(f"Speed = {speed}")
+    #                 command=f"\nDC 1 Forward {max(min(int(speed),255),0)}\n"
+    #                 client_socket.sendall(command.encode())
+    #                 time.sleep(0.01)
+    #                 command=f"\nDC 2 Forward {max(min(int(speed),255),0)}\n"
+    #                 client_socket.sendall(command.encode())
+    #                 time.sleep(0.01)
+    #         elif event.type == pygame.JOYBUTTONDOWN:
+    #             print("Button", event.button, "down.")
+    #         elif event.type == pygame.JOYBUTTONUP:
+    #             print("Button", event.button, "up.")
+    #         elif event.type == pygame.JOYHATMOTION:
+    #             print("Hat", event.hat, "Value:", event.value)
+        time.sleep(0.02)
     
     
     
