@@ -31,46 +31,65 @@ else:
     
 #================================================================
 try:
+    x_axis=0.0
+    y_axis=0.0
+    x_axis_now=0.0
+    y_axis_now=0.0
+    speed=0.0
+    speed_now=0.0
     while True:
-        for event in pygame.event.get():
-            #update value
-            axes = [joystick.get_axis(i) for i in range(joystick.get_numaxes())]
-            buttons = [joystick.get_button(i) for i in range(joystick.get_numbuttons())]
-            hat = joystick.get_hat(0)
-            if event.type == pygame.JOYAXISMOTION:
-                # print("Axis", event.axis, "Value:", int(event.value*4096))
-                if(event.axis==0 or event.axis==1):
-                    #calculate angle
-                    x_axis=axes[0]
-                    y_axis=-axes[1]
-                    angle=(math.degrees(math.atan(y_axis/x_axis)))%360
-                    if(x_axis<0):
-                        angle=(180+angle)%360
-                    print(f"Angle = {angle}")
-                    command=f"\nDC_encoder 1 {str(int(int(angle)*1200/360))}\n"
-                    client_socket.sendall(command.encode())
-                    time.sleep(0.02)
-                    command=f"\nDC_encoder 2 {str(int(int(angle)*1200/360))}\n"
-                    client_socket.sendall(command.encode())
-                    time.sleep(0.01)
-                    
-                    
-                elif(event.axis==5):
-                    speed=min(255,(axes[5]+1)/2*255)
-                    print(f"Speed = {speed}")
-                    command=f"\nDC 1 Forward {max(min(int(speed),255),0)}\n"
-                    client_socket.sendall(command.encode())
-                    time.sleep(0.01)
-                    command=f"\nDC 2 Forward {max(min(int(speed),255),0)}\n"
-                    client_socket.sendall(command.encode())
-                    time.sleep(0.01)
-            elif event.type == pygame.JOYBUTTONDOWN:
-                print("Button", event.button, "down.")
-            elif event.type == pygame.JOYBUTTONUP:
-                print("Button", event.button, "up.")
-            elif event.type == pygame.JOYHATMOTION:
-                print("Hat", event.hat, "Value:", event.value)
-        time.sleep(0.1)
+
+        # Poll for joystick events
+        pygame.event.pump()
+
+        # Print joystick axes values
+        for i in range(joystick.get_numaxes()):
+            axis_value = joystick.get_axis(i)
+            if(i==0):
+                x_axis_now=axis_value
+            if(i==1):
+                y_axis_now=-axis_value
+            if(i==5):
+                speed_now=(axis_value+1.0)*255/2
+            # print(f"Axis {i}: {axis_value:.2f}")
+        if(x_axis_now!=x_axis or y_axis_now!=y_axis):
+            x_axis=x_axis_now
+            y_axis=y_axis_now
+            angle=0
+            if(x_axis==0 and y_axis==0):
+                angle=0
+            elif(x_axis==0 and y_axis!=0):
+                angle=90
+            else:
+                angle=(math.degrees(math.atan(y_axis/x_axis)))%360
+                if(x_axis<0):
+                    angle=(180+angle)%360
+            print(f"Angle = {angle}")
+            command=f"\nDC_encoder 1 {str(int(int(angle)*1800/360))}\n"
+            client_socket.sendall(command.encode())
+            time.sleep(0.02)
+            command=f"\nDC_encoder 2 {str(int(int(angle)*1200/360))}\n"
+            client_socket.sendall(command.encode())
+            time.sleep(0.02)
+        if(speed_now!=speed):
+            speed=speed_now
+            print(f"Speed = {speed}")
+            command=f"\nDC 1 Forward {max(min(int(speed),255),0)}\n"
+            client_socket.sendall(command.encode())
+            time.sleep(0.01)
+            command=f"\nDC 2 Forward {max(min(int(speed),255),0)}\n"
+            client_socket.sendall(command.encode())
+            time.sleep(0.01)
+        # Print button values
+        # for i in range(joystick.get_numbuttons()):
+        #     button_value = joystick.get_button(i)
+        #     print(f"Button {i}: {button_value}")
+
+        # Print hat switch values
+        # for i in range(joystick.get_numhats()):
+        #     hat_value = joystick.get_hat(i)
+        #     print(f"Hat {i}: {hat_value}")
+        time.sleep(0.02)
     
     
     
