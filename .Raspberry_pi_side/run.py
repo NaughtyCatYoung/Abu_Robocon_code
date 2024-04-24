@@ -38,7 +38,7 @@ while True:
 
             # Process the received data (e.g., control the robot)
             # Here you can interpret the received data and perform corresponding actions
-            print('Received:', data.decode())
+            print(data.decode())
             command=data.decode()
             ser.write(command.encode(encoding = 'ascii', errors = 'strict'))       
 

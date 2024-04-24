@@ -19,15 +19,16 @@ private:
     int RPWM,LPWM;
 public:
     int speed=0;
-    Motor(int RPWM,int LPWM):RPWM(RPWM),LPWM(LPWM){;}
-    void set_speed(int sp)//sp range(-4095,4059)
+    Motor(int rpwm,int lpwm):RPWM(rpwm),LPWM(lpwm){;}
+    void set_speed(int sp)//sp range(-4095,4095)
     {
         speed=sp;
-        pwm.setPWMFreq(1600);
+        // Serial.println(sp);
+        // pwm.setPWMFreq(1600);
         if(sp>0)
-        {   
-            pwm.setPWM(RPWM,0,sp);
+        {  
             pwm.setPWM(LPWM,0,0);
+            pwm.setPWM(RPWM,0,sp);
         }
         else if(sp<0)
         {
@@ -129,6 +130,9 @@ void setup()
     pwm.setOscillatorFrequency(27000000);
     pwm.setPWMFreq(1600);
     Wire.setClock(400000);
+    
+    pinMode(26,INPUT_PULLUP);
+    pinMode(27,INPUT_PULLUP);
 
     pinMode(2,INPUT_PULLUP);
     pinMode(3,INPUT_PULLUP);
@@ -136,12 +140,17 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
     pos1_pid.begin();
-    pos1_pid.tune(2000,0.00,0);
+    pos1_pid.tune(200,0.00,0);
     pos1_pid.limit(-4095,4095);
 
     pos2_pid.begin();
-    pos2_pid.tune(2000,0.00,0);
+    pos2_pid.tune(200,0.00,0);
     pos2_pid.limit(-4095,4095);
+
+    for(int i=0;i<16;i++)
+    {
+        pwm.setPWM(i,0,0);
+    }
 
     delay(1000);
 }
@@ -194,6 +203,7 @@ int string_to_int(String s)
 
 void loop()
 {
+    
     String command = Serial.readStringUntil('\n');
     command.trim();
     Serial.println(command); 
@@ -308,8 +318,8 @@ void loop()
     int motor_encoder1_power=pos1_pid.compute(encoder_pos1);
     int motor_encoder2_power=-pos2_pid.compute(encoder_pos2);
 
-    rotate1.set_speed(motor_encoder1_power);
-    rotate2.set_speed(motor_encoder2_power);
+    // rotate1.set_speed(motor_encoder1_power);
+    // rotate2.set_speed(motor_encoder2_power);
 
     Serial.print(wheel1.speed);Serial.print("\t");
     Serial.print(wheel2.speed);Serial.print("\t");
