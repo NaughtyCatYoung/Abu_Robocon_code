@@ -1,1 +1,1 @@
-w
+ pygame.event.get()
