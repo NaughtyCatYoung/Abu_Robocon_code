@@ -65,10 +65,10 @@ try:
                 if(x_axis<0):
                     angle=(180+angle)%360
             print(f"Angle = {angle}")
-            command=f"\nDC_encoder 1 {str(int(int(angle)*1200/360))}\n"
+            command=f"\nDC_encoder 1 {str(int(int(angle)*1440/360))}\n"#ratio 20:48
             client_socket.sendall(command.encode())
             time.sleep(0.02)
-            command=f"\nDC_encoder 2 {str(int(int(angle)*900/360))}\n"
+            command=f"\nDC_encoder 2 {str(int(int(angle)*960/360))}\n"#ratio 20:36
             client_socket.sendall(command.encode())
             time.sleep(0.02)
         if(speed_now!=speed):
