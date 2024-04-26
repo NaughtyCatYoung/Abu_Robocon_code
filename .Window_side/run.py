@@ -65,10 +65,10 @@ try:
                 if(x_axis<0):
                     angle=(180+angle)%360
             print(f"Angle = {angle}")
-            command=f"\nDC_encoder 1 {str(int(int(angle)*1800/360))}\n"
+            command=f"\nDC_encoder 1 {str(int(int(angle)*1200/360))}\n"
             client_socket.sendall(command.encode())
             time.sleep(0.02)
-            command=f"\nDC_encoder 2 {str(int(int(angle)*1200/360))}\n"
+            command=f"\nDC_encoder 2 {str(int(int(angle)*900/360))}\n"
             client_socket.sendall(command.encode())
             time.sleep(0.02)
         if(speed_now!=speed):
@@ -81,14 +81,34 @@ try:
             client_socket.sendall(command.encode())
             time.sleep(0.01)
         # Print button values
-        # for i in range(joystick.get_numbuttons()):
-        #     button_value = joystick.get_button(i)
-        #     print(f"Button {i}: {button_value}")
+        for i in range(joystick.get_numbuttons()):
+            button_value = joystick.get_button(i)
+            if(i==10 and button_value==1):
+                command=f"\nDC_encoder 1 {0}\n"
+                client_socket.sendall(command.encode())
+                time.sleep(0.01)
+                command=f"\nDC_encoder 2 {0}\n"
+                client_socket.sendall(command.encode())
+                time.sleep(0.01)
+                
+            # print(f"Button {i}: {button_value}")
 
         # Print hat switch values
-        # for i in range(joystick.get_numhats()):
-        #     hat_value = joystick.get_hat(i)
-        #     print(f"Hat {i}: {hat_value}")
+        for i in range(joystick.get_numhats()):
+            hat_value = joystick.get_hat(i)
+            if(hat_value==(0,1)):
+                print("up")
+                command=f"\nStepper 1 200 Forward\n"
+                client_socket.sendall(command.encode())
+                time.sleep(0.3)
+            if(hat_value==(0,-1)):
+                print("down")
+                command=f"\nStepper 1 200 Backward\n"
+                client_socket.sendall(command.encode())
+                time.sleep(0.3)
+            # time.sleep(0.01)
+            
+            # print(f"Hat {i}: {hat_value}")
         time.sleep(0.02)
     
     
