@@ -79,19 +79,19 @@ public:
         else if (speed > 0)
         {
             analogWrite(PWM, speed);
-            digitalWrite(DIR, LOW);
+            digitalWrite(DIR, HIGH);
         }
         else
         {
             analogWrite(PWM, -speed);
-            digitalWrite(DIR, HIGH);
+            digitalWrite(DIR, LOW);
         }
     }
 };
 class Stepper_motor
 {
 private:
-    int pul,dir,speeddelay=100;
+    int pul,dir,speeddelay=500;
 public:
     Stepper_motor(int pul,int dir):pul(pul),dir(dir){
         pinMode(pul,OUTPUT);
@@ -176,11 +176,13 @@ PIDController pos1_pid,pos2_pid;
 int encoder_pos1=0,encoder_pos2=0;
 int encoder_target1=0,encoder_target2=0;
 
-MCT_HB_40A_H_Bridge wheel1(4,41,42);
-MCT_HB_40A_H_Bridge wheel2(5,43,44);
+MCT_HB_40A_H_Bridge rotate1(4,41,42);
+MCT_HB_40A_H_Bridge rotate2(5,43,44);
 
-Cytron_20a_motor_driver rotate1(6,45);
-Cytron_20a_motor_driver rotate2(7,46);
+Cytron_20a_motor_driver wheel1(6,45);
+Cytron_20a_motor_driver wheel2(7,46);
+
+Stepper_motor Stepper1(22,23);
 
 void encoder1(){if(digitalRead(26)==HIGH)encoder_pos1++;else encoder_pos1--;}
 void encoder2(){if(digitalRead(27)==HIGH)encoder_pos2++;else encoder_pos2--;}
@@ -199,12 +201,12 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
     pos1_pid.begin();
-    pos1_pid.tune(10,0.00,0);
-    pos1_pid.limit(-255,255);
+    pos1_pid.tune(5,0,0);
+    pos1_pid.limit(-150,150);
 
     pos2_pid.begin();
-    pos2_pid.tune(10,0.00,0);
-    pos2_pid.limit(-255,255);
+    pos2_pid.tune(5,0.00,0);
+    pos2_pid.limit(-150,150);
 
     delay(1000);
 }
@@ -221,7 +223,7 @@ void loop()
     /*
     DC <index> <forward/backward>  <speed>  #control DC motor
     DC_encoder <index> <angle>
-    Stepper <index> <forward/backward>  <step> #control stepper motor
+    Stepper <index> <step> <forward/backward>  #control stepper motor
     Servo <index> <angle> #control servo
     */
     int sz=cmds.size();
@@ -273,12 +275,12 @@ void loop()
             if(cmds[1]=="1")
             {
                 encoder_target1=string_to_int(cmds[2]);
-                pos1_pid.setpoint(-encoder_target1);
+                pos1_pid.setpoint(encoder_target1);
             }
             else if(cmds[1]=="2")
             {
                 encoder_target2=string_to_int(cmds[2]);
-                pos2_pid.setpoint(-encoder_target2);
+                pos2_pid.setpoint(encoder_target2);
             }
             ;
         }
@@ -286,37 +288,37 @@ void loop()
 
     else if(cmds[0]=="Stepper")
     {
-        // Serial.println("Stepper_motor");
-        // if(sz!=4)
-        // {
-        //     Serial.println("Command error");
-        // }
-        // else
-        // {
-        //     if(cmds[1]=="1")
-        //     {
-        //         if(cmds[3]=="Forward")
-        //         Stepper1.step(string_to_int(cmds[2]),true);
-        //         else 
-        //         Stepper1.step(string_to_int(cmds[2]),false);
+        Serial.println("Stepper_motor");
+        if(sz!=4)
+        {
+            Serial.println("Command error");
+        }
+        else
+        {
+            if(cmds[1]=="1")
+            {
+                if(cmds[3]=="Forward")
+                Stepper1.step(string_to_int(cmds[2]),true);
+                else 
+                Stepper1.step(string_to_int(cmds[2]),false);
 
-        //     }
-        //     else if(cmds[1]=="2")
-        //     {
-        //         if(cmds[3]=="Forward")
-        //         Stepper2.step(string_to_int(cmds[2]),true);
-        //         else 
-        //         Stepper2.step(string_to_int(cmds[2]),false);
-        //     }
-        //     else if(cmds[1]=="3")
-        //     {
-        //         if(cmds[3]=="Forward")
-        //         Stepper3.step(string_to_int(cmds[2]),true);
-        //         else 
-        //         Stepper3.step(string_to_int(cmds[2]),false);
-        //     }
-        //     ;
-        // }
+            }
+            // else if(cmds[1]=="2")
+            // {
+            //     if(cmds[3]=="Forward")
+            //     Stepper2.step(string_to_int(cmds[2]),true);
+            //     else 
+            //     Stepper2.step(string_to_int(cmds[2]),false);
+            // }
+            // else if(cmds[1]=="3")
+            // {
+            //     if(cmds[3]=="Forward")
+            //     Stepper3.step(string_to_int(cmds[2]),true);
+            //     else 
+            //     Stepper3.step(string_to_int(cmds[2]),false);
+            // }
+            ;
+        }
     }
     else if(cmds[0]=="Servo")
     {  
@@ -331,11 +333,11 @@ void loop()
         // }
     }
     }
-    int motor_encoder1_power=pos1_pid.compute(encoder_pos1);
+    int motor_encoder1_power=-pos1_pid.compute(encoder_pos1);
     int motor_encoder2_power=-pos2_pid.compute(encoder_pos2);
 
-    // rotate1.set_speed(motor_encoder1_power);
-    // rotate2.set_speed(motor_encoder2_power);
+    rotate1.set_speed(motor_encoder1_power);
+    rotate2.set_speed(motor_encoder2_power);
 
     Serial.print(wheel1.speed_now);Serial.print("\t");
     Serial.print(wheel2.speed_now);Serial.print("\t");
@@ -345,6 +347,8 @@ void loop()
     Serial.print(encoder_pos2);Serial.print("\t");
     Serial.print(encoder_target1);Serial.print("\t");
     Serial.print(encoder_target2);Serial.print("\t");
-    
+    // Serial.print(motor_encoder1_power);Serial.print("\t");
+    // Serial.print(motor_encoder2_power);Serial.print("\t");
+    Serial.println("");
     return;
 }
