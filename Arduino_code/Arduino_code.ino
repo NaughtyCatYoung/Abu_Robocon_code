@@ -201,12 +201,12 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
     pos1_pid.begin();
-    pos1_pid.tune(5,0,0);
-    pos1_pid.limit(-150,150);
+    pos1_pid.tune(8,0,0);
+    pos1_pid.limit(-70,70);
 
     pos2_pid.begin();
-    pos2_pid.tune(5,0.00,0);
-    pos2_pid.limit(-150,150);
+    pos2_pid.tune(8,0,0);
+    pos2_pid.limit(-70,70);
 
     delay(1000);
 }
