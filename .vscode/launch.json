@@ -11,7 +11,7 @@
       "cwd": "c:/Users/witch/Desktop/Project/ABU 2024/Abu_Robocon_code",
       "program": "c:/Users/witch/Desktop/Project/ABU 2024/Abu_Robocon_code/build/Debug/outDebug",
       "MIMode": "gdb",
-      "miDebuggerPath": "/home/youngrasp/.arduino15/packages/arduino/tools/avr-gdb/7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
+      "miDebuggerPath": "gdb",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",

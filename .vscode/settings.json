@@ -1,10 +1,30 @@
 {
-  "C_Cpp_Runner.cCompilerPath": "/home/youngrasp/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
-  "C_Cpp_Runner.cppCompilerPath": "/home/youngrasp/.arduino15/packages/arduino/tools/avr-g++/7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
-  "C_Cpp_Runner.debuggerPath": "/home/youngrasp/.arduino15/packages/arduino/tools/avr-gdb/7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
-  "C_Cpp_Runner.cStandard": "c11",
-  "C_Cpp_Runner.cppStandard": "c++11",
+  "peacock.color": "#000000",
   "C_Cpp_Runner.msvcBatchPath": "",
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#1a1a1a",
+    "activityBar.background": "#1a1a1a",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#606020",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#1a1a1a",
+    "statusBar.background": "#000000",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#1a1a1a",
+    "statusBarItem.remoteBackground": "#000000",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#000000",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#00000099",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "C_Cpp_Runner.cCompilerPath": "gcc",
+  "C_Cpp_Runner.cppCompilerPath": "g++",
+  "C_Cpp_Runner.debuggerPath": "gdb",
+  "C_Cpp_Runner.cStandard": "",
+  "C_Cpp_Runner.cppStandard": "",
   "C_Cpp_Runner.useMsvc": false,
   "C_Cpp_Runner.warnings": [
     "-Wall",
@@ -37,15 +57,7 @@
   "C_Cpp_Runner.warningsAsError": false,
   "C_Cpp_Runner.compilerArgs": [],
   "C_Cpp_Runner.linkerArgs": [],
-  "C_Cpp_Runner.includePaths": [
-    "/home/youngrasp/.arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino",
-    "/home/youngrasp/.arduino15/packages/arduino/hardware/avr/1.8.6/variants/mega",
-    "/home/youngrasp/Arduino/libraries/PCA9685_LED_DRIVER/src",
-    "/home/youngrasp/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/Wire/src",
-    "/home/youngrasp/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/lib/gcc/avr/7.3.0/include",
-    "/home/youngrasp/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/lib/gcc/avr/7.3.0/include-fixed",
-    "/home/youngrasp/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/avr/include"
-  ],
+  "C_Cpp_Runner.includePaths": [],
   "C_Cpp_Runner.includeSearch": [
     "*",
     "**/*"
@@ -63,19 +75,5 @@
   "C_Cpp_Runner.useLeakSanitizer": false,
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
-  "C_Cpp_Runner.msvcSecureNoWarnings": false,
-  "files.associations": {
-    "array": "cpp",
-    "deque": "cpp",
-    "forward_list": "cpp",
-    "list": "cpp",
-    "string": "cpp",
-    "unordered_map": "cpp",
-    "unordered_set": "cpp",
-    "vector": "cpp",
-    "initializer_list": "cpp",
-    "regex": "cpp",
-    "valarray": "cpp",
-    "sstream": "cpp"
-  }
+  "C_Cpp_Runner.msvcSecureNoWarnings": false
 }
