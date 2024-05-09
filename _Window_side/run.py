@@ -29,7 +29,8 @@ else:
     joystick = pygame.joystick.Joystick(0)
     joystick.init()
     print("Joystick detected:", joystick.get_name())
-    
+left_stepper_moved=False
+right_stepper_moved=False
 #================================================================
 try:
     x_axis=0.0
@@ -38,14 +39,14 @@ try:
     y_axis_now=0.0
     speed=0.0
     speed_now=0.0
-
-    client_socket.sendall("\nDC_encoder 1 0\n".encode()())
+    #make robot stop when start
+    client_socket.sendall("\nDC_encoder 1 0\n".encode())
     time.sleep(0.2)
-    client_socket.sendall("\nDC_encoder 2 0\n".encode()())
+    client_socket.sendall("\nDC_encoder 2 0\n".encode())
     time.sleep(0.2)
-    client_socket.sendall("\nDC 1 Forward 0\n".encode()())
+    client_socket.sendall("\nDC 1 Forward 0\n".encode())
     time.sleep(0.2)
-    client_socket.sendall("\nDC 2 Forward 0\n".encode()())
+    client_socket.sendall("\nDC 2 Forward 0\n".encode())
     time.sleep(0.2)
 
     while True:
@@ -66,7 +67,14 @@ try:
         if(x_axis_now!=x_axis or y_axis_now!=y_axis):
             x_axis=x_axis_now
             y_axis=y_axis_now
+            amplitude=math.sqrt(x_axis*x_axis+y_axis*y_axis)
+
+            print(f"x-axis = {x_axis}")
+            print(f"y-axis = {y_axis}")
+            print(f"amplitude = {amplitude}")
+
             angle=0
+
             if(x_axis==0 and y_axis==0):
                 angle=0
             elif(x_axis==0 and y_axis!=0):
@@ -75,13 +83,16 @@ try:
                 angle=(math.degrees(math.atan(y_axis/x_axis)))%360
                 if(x_axis<0):
                     angle=(180+angle)%360
-            print(f"Angle = {angle}")
-            command=f"\nDC_encoder 1 {str(int(int(angle)*1200/360))}\n"#ratio 20:40
-            client_socket.sendall(command.encode())
-            time.sleep(0.02)
-            command=f"\nDC_encoder 2 {str(int(int(angle)*900/360))}\n"#ratio 20:30
-            client_socket.sendall(command.encode())
-            time.sleep(0.02)
+
+            if(amplitude>=0.5):
+                print(f"Angle = {angle}")
+                command=f"\nDC_encoder 1 {str(int(int(angle)*1200/360))}\n"#ratio 20:40
+                client_socket.sendall(command.encode())
+                time.sleep(0.02)
+                command=f"\nDC_encoder 2 {str(int(int(angle)*900/360))}\n"#ratio 20:30
+                client_socket.sendall(command.encode())
+                time.sleep(0.02)
+
         if(speed_now!=speed):
             speed=speed_now
             print(f"Speed = {speed}")
@@ -91,6 +102,7 @@ try:
             command=f"\nDC 2 Forward {max(min(int(speed),255),0)}\n"
             client_socket.sendall(command.encode())
             time.sleep(0.01)
+
         # Print button values
         for i in range(joystick.get_numbuttons()):
             button_value = joystick.get_button(i)
@@ -101,26 +113,31 @@ try:
                 command=f"\nDC_encoder 2 {0}\n"
                 client_socket.sendall(command.encode())
                 time.sleep(0.01)
-                
+            if(i==4 and button_value==1):
+                if(left_stepper_moved):
+                    command=f"\nStepper 2 1000 Forward\n"
+                    client_socket.sendall(command.encode())
+                else :
+                    command=f"\nStepper 2 1000 Backward\n"
+                    client_socket.sendall(command.encode())
+                left_stepper_moved=left_stepper_moved^True
+                time.sleep(1.2)
         # Print hat switch values
         for i in range(joystick.get_numhats()):
             hat_value = joystick.get_hat(i)
             if(hat_value==(0,1)):
                 print("up")
-                command=f"\nStepper 1 200 Forward\n"
+                command=f"\nStepper 1 400 Forward\n"
                 client_socket.sendall(command.encode())
                 time.sleep(0.3)
             if(hat_value==(0,-1)):
                 print("down")
-                command=f"\nStepper 1 200 Backward\n"
+                command=f"\nStepper 1 400 Backward\n"
                 client_socket.sendall(command.encode())
                 time.sleep(0.3)
             
             # print(f"Hat {i}: {hat_value}")
         time.sleep(0.02)
-
-
-
 
 # If something wrong Close the connection
 

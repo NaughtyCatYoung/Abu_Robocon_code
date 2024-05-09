@@ -183,6 +183,7 @@ Cytron_20a_motor_driver wheel1(6,45);
 Cytron_20a_motor_driver wheel2(7,46);
 
 Stepper_motor Stepper1(22,23);
+Stepper_motor left_stepper(24,25);
 
 void encoder1(){if(digitalRead(26)==HIGH)encoder_pos1++;else encoder_pos1--;}
 void encoder2(){if(digitalRead(27)==HIGH)encoder_pos2++;else encoder_pos2--;}
@@ -303,13 +304,13 @@ void loop()
                 Stepper1.step(string_to_int(cmds[2]),false);
 
             }
-            // else if(cmds[1]=="2")
-            // {
-            //     if(cmds[3]=="Forward")
-            //     Stepper2.step(string_to_int(cmds[2]),true);
-            //     else 
-            //     Stepper2.step(string_to_int(cmds[2]),false);
-            // }
+            else if(cmds[1]=="2")
+            {
+            	if(cmds[3]=="Forward")
+                left_stepper.step(string_to_int(cmds[2]),true);
+                else 
+                left_stepper.step(string_to_int(cmds[2]),false);
+            }
             // else if(cmds[1]=="3")
             // {
             //     if(cmds[3]=="Forward")
