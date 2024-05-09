@@ -5,7 +5,7 @@
 #include <Wire.h>
 
 String storage_array[10];
-
+bool update_make=false;
 
 class MCT_HB_40A_H_Bridge
 {
@@ -26,6 +26,8 @@ public:
             Serial.println("Speed is out of range");
             return;
         }
+        if(speed_now!=speed)
+        update_make=true;
         speed_now=speed;
         if(speed==0)
         {
@@ -65,12 +67,15 @@ public:
 
     void set_speed(int speed)
     {
+
         if (speed > 255 || speed < -255)  // Fixed the condition for out-of-range speed
         {
             Serial.println("Speed is out of range");
             return;
         }
-        
+        if(speed!=speed_now) 
+        update_make=true;
+        speed_now=speed;
         if (speed == 0)
         {
             analogWrite(PWM, 0);
@@ -99,6 +104,7 @@ public:
     }
     void step(int steps,bool direction)
     {
+        update_make=true;
         if(direction)
         {
             Serial.println("Going up");
@@ -121,6 +127,16 @@ public:
                 delayMicroseconds(speeddelay);
             }
         }
+    }
+    void set_speed_delay(int new_speed)
+    {
+        if(new_speed<=0||new_speed>=10000)
+        {
+            Serial.println("Speed delay out of range");
+            return;
+        }
+        speeddelay=new_speed;
+        return;
     }
 
 };
@@ -182,16 +198,18 @@ MCT_HB_40A_H_Bridge rotate2(5,43,44);
 Cytron_20a_motor_driver wheel1(6,45);
 Cytron_20a_motor_driver wheel2(7,46);
 
-Stepper_motor Stepper1(22,23);
-Stepper_motor left_stepper(24,25);
+Stepper_motor Stepper1(22,23);//stepper for lifting
+Stepper_motor Stepper2(24,25);//left stepper
+Stepper_motor Stepper3(25,26);//Right stepper
 
-void encoder1(){if(digitalRead(26)==HIGH)encoder_pos1++;else encoder_pos1--;}
-void encoder2(){if(digitalRead(27)==HIGH)encoder_pos2++;else encoder_pos2--;}
+
+void encoder1(){update_make=true; if(digitalRead(26)==HIGH)encoder_pos1++;else encoder_pos1--;}
+void encoder2(){update_make=true; if(digitalRead(27)==HIGH)encoder_pos2++;else encoder_pos2--;}
 
 void setup()
 {
     Serial.begin(115200);
-    Serial.setTimeout(10);
+    Serial.setTimeout(5);
 
     pinMode(26,INPUT_PULLUP);
     pinMode(27,INPUT_PULLUP);
@@ -202,13 +220,15 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
     pos1_pid.begin();
-    pos1_pid.tune(8,0,0);
-    pos1_pid.limit(-70,70);
+    pos1_pid.tune(10,0,0);
+    pos1_pid.limit(-80,80);
 
     pos2_pid.begin();
-    pos2_pid.tune(8,0,0);
-    pos2_pid.limit(-70,70);
-
+    pos2_pid.tune(10,0,0);
+    pos2_pid.limit(-80,80);
+    //Stepper2.set_speed_delay(2000);
+    Stepper1.set_speed_delay(200);
+    update_make=true;
     delay(1000);
 }
 
@@ -252,14 +272,14 @@ void loop()
             if(cmds[1]=="1")
             {
                 if(cmds[2]=="Forward")
-                wheel1.set_speed(string_to_int(cmds[3]));
-                else wheel1.set_speed(-string_to_int(cmds[3]));
+                wheel1.set_speed(-string_to_int(cmds[3]));
+                else wheel1.set_speed(string_to_int(cmds[3]));
             }
             else if(cmds[1]=="2")
             {
                 if(cmds[2]=="Forward")
-                wheel2.set_speed(string_to_int(cmds[3]));
-                else wheel2.set_speed(-string_to_int(cmds[3]));
+                wheel2.set_speed(-string_to_int(cmds[3]));
+                else wheel2.set_speed(string_to_int(cmds[3]));
             }
             ;
         }
@@ -306,18 +326,18 @@ void loop()
             }
             else if(cmds[1]=="2")
             {
-            	if(cmds[3]=="Forward")
-                left_stepper.step(string_to_int(cmds[2]),true);
+                if(cmds[3]=="Forward")
+                Stepper2.step(string_to_int(cmds[2]),true);
                 else 
-                left_stepper.step(string_to_int(cmds[2]),false);
+                Stepper2.step(string_to_int(cmds[2]),false);
             }
-            // else if(cmds[1]=="3")
-            // {
-            //     if(cmds[3]=="Forward")
-            //     Stepper3.step(string_to_int(cmds[2]),true);
-            //     else 
-            //     Stepper3.step(string_to_int(cmds[2]),false);
-            // }
+            else if(cmds[1]=="3")
+            {
+                if(cmds[3]=="Forward")
+                Stepper3.step(string_to_int(cmds[2]),true);
+                else 
+                Stepper3.step(string_to_int(cmds[2]),false);
+            }
             ;
         }
     }
@@ -334,12 +354,12 @@ void loop()
         // }
     }
     }
-    int motor_encoder1_power=-pos1_pid.compute(encoder_pos1);
+    int motor_encoder1_power=pos1_pid.compute(encoder_pos1);
     int motor_encoder2_power=-pos2_pid.compute(encoder_pos2);
 
-    rotate1.set_speed(motor_encoder1_power);
-    rotate2.set_speed(motor_encoder2_power);
-
+    //rotate1.set_speed(motor_encoder1_power);
+    //rotate2.set_speed(motor_encoder2_power);
+    if(update_make){
     Serial.print(wheel1.speed_now);Serial.print("\t");
     Serial.print(wheel2.speed_now);Serial.print("\t");
     Serial.print(rotate1.speed_now);Serial.print("\t");
@@ -351,5 +371,7 @@ void loop()
     // Serial.print(motor_encoder1_power);Serial.print("\t");
     // Serial.print(motor_encoder2_power);Serial.print("\t");
     Serial.println("");
+    update_make=false;
+    }
     return;
 }

@@ -1,5 +1,6 @@
 import socket
 import serial
+import time
 ser = serial.Serial(
     port = '/dev/ttyUSB0',
     baudrate = 115200,
@@ -14,6 +15,15 @@ while True:
         # Define host and port
         HOST = '0.0.0.0'  # Raspberry Pi's IP address
         PORT = 12345      # Choose a port number
+
+        ser.write("DC_encoder 1 0\n".encode())
+        time.sleep(0.2);
+        ser.write("DC_encoder 2 0\n".encode())
+        time.sleep(0.2);
+        ser.write("DC 1 Forward 0\n".encode())
+        time.sleep(0.2);
+        ser.write("DC 2 Forward 0\n".encode())
+        time.sleep(0.2);
 
         # Create a socket object
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
