@@ -3,6 +3,8 @@
 #include <string.h>
 #include <util/atomic.h>
 #include <Wire.h>
+#include <Servo.h>
+
 
 String storage_array[10];
 bool update_make=false;
@@ -199,10 +201,22 @@ Cytron_20a_motor_driver wheel1(6,45);
 Cytron_20a_motor_driver wheel2(7,46);
 
 Stepper_motor Stepper1(22,23);//stepper for lifting
-Stepper_motor Stepper2(24,25);//left stepper
-Stepper_motor Stepper3(25,26);//Right stepper
+Stepper_motor Stepper2(24,25);//stepper for control hand position
 
-
+//Servo index 1 to 6 respectively
+Servo ball_catcher_left; 
+Servo ball_catcher_right;
+Servo hand1;
+Servo hand2;
+Servo hand3;
+Servo hand4;
+//Servo desire angle
+int ball_catcher_left_pos=0;
+int ball_catcher_right_pos=0;
+int hand1_pos=0;
+int hand2_pos=0;
+int hand3_pos=0;
+int hand4_pos=0;
 void encoder1(){update_make=true; if(digitalRead(26)==HIGH)encoder_pos1++;else encoder_pos1--;}
 void encoder2(){update_make=true; if(digitalRead(27)==HIGH)encoder_pos2++;else encoder_pos2--;}
 
@@ -226,6 +240,13 @@ void setup()
     pos2_pid.begin();
     pos2_pid.tune(10,0,0);
     pos2_pid.limit(-80,80);
+
+	ball_catcher_left.attach(A1);
+	ball_catcher_right.attach(A2);
+	hand1.attach(A3);
+	hand2.attach(A4);
+	hand3.attach(A5);
+	hand4.attach(A6);
     //Stepper2.set_speed_delay(2000);
     Stepper1.set_speed_delay(200);
     update_make=true;
@@ -331,35 +352,115 @@ void loop()
                 else 
                 Stepper2.step(string_to_int(cmds[2]),false);
             }
-            else if(cmds[1]=="3")
-            {
-                if(cmds[3]=="Forward")
-                Stepper3.step(string_to_int(cmds[2]),true);
-                else 
-                Stepper3.step(string_to_int(cmds[2]),false);
-            }
             ;
         }
     }
     else if(cmds[0]=="Servo")
     {  
-        // Serial.println("Servo_control");
-        // if(sz!=3)
-        // {
-        //     Serial.println("Command error");
-        // }
-        // else
-        // {
-        //     ;
-        // }
+        Serial.println("Servo_control");
+        if(sz!=3)
+        {
+            Serial.println("Command error");
+        }
+		else
+		{
+			if(cmds[1]=="1")
+			{
+				int angle_use=string_to_int(cmds[2]);
+				if(angle_use<0||angle_use>180)
+				{
+					Serial.println("Wrong angle");
+				}
+				else 
+                {
+                    ball_catcher_left_pos=angle_use;
+                    ball_catcher_left.write(angle_use);
+                }
+			}
+            else if(cmds[1]=="2")
+			{
+				int angle_use=string_to_int(cmds[2]);
+				if(angle_use<0||angle_use>180)
+				{
+					Serial.println("Wrong angle");
+				}
+				else
+				{ 
+					ball_catcher_right_pos=angle_use;
+					ball_catcher_right.write(angle_use);
+				}
+			}
+            else if(cmds[1]=="3")
+			{
+				int angle_use=string_to_int(cmds[2]);
+				if(angle_use<0||angle_use>180)
+				{
+					Serial.println("Wrong angle");
+				}
+				else
+				{
+					hand1_pos=angle_use;
+					hand1.write(angle_use);
+				}
+			}
+            else if(cmds[1]=="4")
+			{
+				int angle_use=string_to_int(cmds[2]);
+				if(angle_use<0||angle_use>180)
+				{
+					Serial.println("Wrong angle");
+				}
+				else 
+				{
+					hand2.write(angle_use);
+					hand2_pos=angle_use;
+				}
+			}
+            else if(cmds[1]=="5")
+			{
+				int angle_use=string_to_int(cmds[2]);
+				if(angle_use<0||angle_use>180)
+				{
+					Serial.println("Wrong angle");
+				}
+				else 
+                {
+                    hand3_pos=angle_use;
+                    hand3.write(angle_use);
+                }
+			}
+            else if(cmds[1]=="6")
+			{
+				int angle_use=string_to_int(cmds[2]);
+				if(angle_use<0||angle_use>180)
+				{
+					Serial.println("Wrong angle");
+				}
+				else 
+                {
+                    hand4_pos=angle_use;
+                    hand4.write(angle_use);
+                }
+			}
+		}
     }
     }
     int motor_encoder1_power=pos1_pid.compute(encoder_pos1);
     int motor_encoder2_power=-pos2_pid.compute(encoder_pos2);
+	
+	// hand1.write(hand1_pos);
+    // hand2.write(hand1_pos);
+    // hand3.write(hand1_pos);
+    // hand4.write(hand1_pos);
+    // ball_catcher_left.write(hand1_pos);
+    // ball_catcher_right.write(hand1_pos);
 
     //rotate1.set_speed(motor_encoder1_power);
     //rotate2.set_speed(motor_encoder2_power);
+
+    
     if(update_make){
+    Serial.print("Motor ");
     Serial.print(wheel1.speed_now);Serial.print("\t");
     Serial.print(wheel2.speed_now);Serial.print("\t");
     Serial.print(rotate1.speed_now);Serial.print("\t");
@@ -371,6 +472,13 @@ void loop()
     // Serial.print(motor_encoder1_power);Serial.print("\t");
     // Serial.print(motor_encoder2_power);Serial.print("\t");
     Serial.println("");
+    Serial.print("Servo ");
+    Serial.print(ball_catcher_left_pos);Serial.print("\t");
+    Serial.print(ball_catcher_right_pos);Serial.print("\t");
+    Serial.print(hand1_pos);Serial.print("\t");
+    Serial.print(hand2_pos);Serial.print("\t");
+    Serial.print(hand3_pos);Serial.print("\t");
+    Serial.print(hand4_pos);Serial.print("\t");
     update_make=false;
     }
     return;
