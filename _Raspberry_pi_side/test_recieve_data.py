@@ -2,39 +2,11 @@ import socket
 import serial
 import time
 
-
-try:
-        
-
-    ser = serial.Serial(
-        port = '/dev/ttyUSB0',
-        baudrate = 115200,
-        timeout = 10,
-        xonxoff = False
-    )
-except:
-    ser = serial.Serial(
-        port = '/dev/ttyUSB1',
-        baudrate = 115200,
-        timeout = 10,
-        xonxoff = False
-    )
-
 while True:
     try:
         # Define host and port
         HOST = '0.0.0.0'  # Raspberry Pi's IP address
         PORT = 12345      # Choose a port number
-
-        ser.write("DC 1 Forward 0\n".encode())
-        time.sleep(0.2);
-        ser.write("DC 2 Forward 0\n".encode())
-        time.sleep(0.2);
-        ser.write("DC 3 Forward 0\n".encode())
-        time.sleep(0.2);
-        ser.write("DC 4 Forward 0\n".encode())
-        time.sleep(0.2);
-
 
         # Create a socket object
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,8 +32,7 @@ while True:
             # Process the received data (e.g., control the robot)
             # Here you can interpret the received data and perform corresponding actions
             print(data.decode())
-            command=data.decode()
-            ser.write(command.encode())       
+            command=data.decode()   
 
         
     except Exception as ex:

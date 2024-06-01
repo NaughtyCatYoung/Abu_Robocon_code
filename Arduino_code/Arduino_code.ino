@@ -189,16 +189,17 @@ int string_to_int(String s)
 }
 
 
-PIDController pos1_pid,pos2_pid;
+// PIDController pos1_pid,pos2_pid;
 
-int encoder_pos1=0,encoder_pos2=0;
-int encoder_target1=0,encoder_target2=0;
+// int encoder_pos1=0,encoder_pos2=0;
+// int encoder_target1=0,encoder_target2=0;
 
-MCT_HB_40A_H_Bridge rotate1(4,41,42);
-MCT_HB_40A_H_Bridge rotate2(5,43,44);
+MCT_HB_40A_H_Bridge wheel3(4,41,42);
+MCT_HB_40A_H_Bridge wheel4(5,26,27);
 
-Cytron_20a_motor_driver wheel1(6,45);
+Cytron_20a_motor_driver wheel1(6,29);
 Cytron_20a_motor_driver wheel2(7,46);
+Cytron_20a_motor_driver back_side(13,33);
 
 Stepper_motor Stepper1(22,23);//stepper for lifting
 Stepper_motor Stepper2(24,25);//stepper for control hand position
@@ -212,41 +213,58 @@ Servo hand3;
 Servo hand4;
 //Servo desire angle
 int ball_catcher_left_pos=0;
-int ball_catcher_right_pos=0;
+int ball_catcher_right_pos=180;
 int hand1_pos=0;
-int hand2_pos=0;
+int hand2_pos=60;
 int hand3_pos=0;
 int hand4_pos=0;
-void encoder1(){update_make=true; if(digitalRead(26)==HIGH)encoder_pos1++;else encoder_pos1--;}
-void encoder2(){update_make=true; if(digitalRead(27)==HIGH)encoder_pos2++;else encoder_pos2--;}
+// void encoder1(){update_make=true; if(digitalRead(26)==HIGH)encoder_pos1++;else encoder_pos1--;}
+// void encoder2(){update_make=true; if(digitalRead(27)==HIGH)encoder_pos2++;else encoder_pos2--;}
+
+int Switch1=HIGH;
+int Switch2=HIGH;
+
 
 void setup()
 {
     Serial.begin(115200);
-    Serial.setTimeout(5);
+    // Serial.setTimeout(5);
 
-    pinMode(26,INPUT_PULLUP);
-    pinMode(27,INPUT_PULLUP);
+    // pinMode(26,INPUT_PULLUP);
+    // pinMode(27,INPUT_PULLUP);
 
-    pinMode(2,INPUT_PULLUP);
-    pinMode(3,INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(2), encoder1, RISING);
-    attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
+    // pinMode(2,INPUT_PULLUP);
+    // pinMode(3,INPUT_PULLUP);
+    // attachInterrupt(digitalPinToInterrupt(2), encoder1, RISING);
+    // attachInterrupt(digitalPinToInterrupt(3), encoder2, RISING);
 
-    pos1_pid.begin();
-    pos1_pid.tune(10,0,0);
-    pos1_pid.limit(-80,80);
+    //Switch
+    pinMode(35,OUTPUT);
+    pinMode(36,OUTPUT);
 
-    pos2_pid.begin();
-    pos2_pid.tune(10,0,0);
-    pos2_pid.limit(-80,80);
+    digitalWrite(35,Switch1);
+    digitalWrite(36,Switch2);
 
-	ball_catcher_left.attach(A1);
-	ball_catcher_right.attach(A2);
-	hand1.attach(A3);
-	hand2.attach(A4);
-	hand3.attach(A5);
-	hand4.attach(A6);
+    // pos1_pid.begin();
+    // pos1_pid.tune(25,0,0);
+    // pos1_pid.limit(-150,150);
+
+    // pos2_pid.begin();
+    // pos2_pid.tune(25,0,0);
+    // pos2_pid.limit(-150,150);
+
+	ball_catcher_left.attach(44);
+	ball_catcher_right.attach(45);
+	hand1.attach(9);
+	hand2.attach(10);
+	hand3.attach(11);
+	hand4.attach(12);
+    ball_catcher_left.write(ball_catcher_left_pos);
+    ball_catcher_right.write(ball_catcher_right_pos);
+    hand1.write(hand1_pos);
+    hand2.write(hand2_pos);
+    hand3.write(hand3_pos);
+    hand4.write(hand4_pos);
     //Stepper2.set_speed_delay(2000);
     Stepper1.set_speed_delay(200);
     update_make=true;
@@ -258,8 +276,10 @@ void setup()
 void loop()
 {
     String command = Serial.readStringUntil('\n');
+    
     command.trim();
-    // Serial.println(command); 
+    if(command.length()!=0)
+    Serial.println(command); 
 
     Vector<String>  cmds = split_string(command);
     /*
@@ -267,6 +287,8 @@ void loop()
     DC_encoder <index> <angle>
     Stepper <index> <step> <forward/backward>  #control stepper motor
     Servo <index> <angle> #control servo
+    Switch <index> #toggle switch 
+    Tune <index> <step> #tune motor encoder
     */
     int sz=cmds.size();
     if(sz!=0)
@@ -293,40 +315,81 @@ void loop()
             if(cmds[1]=="1")
             {
                 if(cmds[2]=="Forward")
-                wheel1.set_speed(-string_to_int(cmds[3]));
-                else wheel1.set_speed(string_to_int(cmds[3]));
+                wheel1.set_speed(-string_to_int(cmds[3])*10/13);
+                else wheel1.set_speed(string_to_int(cmds[3])*10/13);
             }
             else if(cmds[1]=="2")
             {
                 if(cmds[2]=="Forward")
-                wheel2.set_speed(-string_to_int(cmds[3]));
-                else wheel2.set_speed(string_to_int(cmds[3]));
+                wheel2.set_speed(-string_to_int(cmds[3])*10/13);
+                else wheel2.set_speed(string_to_int(cmds[3])*10/13);
+            }
+            else if(cmds[1]=="3")
+            {
+                if(cmds[2]=="Forward")
+                wheel3.set_speed(-string_to_int(cmds[3]));
+                else wheel3.set_speed(string_to_int(cmds[3]));
+            }
+            else if(cmds[1]=="4")
+            {
+                if(cmds[2]=="Forward")
+                wheel4.set_speed(-string_to_int(cmds[3]));
+                else wheel4.set_speed(string_to_int(cmds[3]));
+            }
+            else if(cmds[1]=="5")
+            {
+                if(cmds[2]=="Forward")
+                back_side.set_speed(-string_to_int(cmds[3]));
+                else back_side.set_speed(string_to_int(cmds[3]));
             }
             ;
         }
     }
-    else if(cmds[0]=="DC_encoder")
-    {
-        Serial.println("DC_encoder");
-        if(sz!=3)
-        {
-            Serial.println("Command error");
-        }
-        else
-        {
-            if(cmds[1]=="1")
-            {
-                encoder_target1=string_to_int(cmds[2]);
-                pos1_pid.setpoint(encoder_target1);
-            }
-            else if(cmds[1]=="2")
-            {
-                encoder_target2=string_to_int(cmds[2]);
-                pos2_pid.setpoint(encoder_target2);
-            }
-            ;
-        }
-    }
+    // else if(cmds[0]=="DC_encoder")
+    // {
+    //     Serial.println("DC_encoder");
+    //     if(sz!=3)
+    //     {
+    //         Serial.println("Command error");
+    //     }
+    //     else
+    //     {
+    //         if(cmds[1]=="1")
+    //         {
+    //             encoder_target1=string_to_int(cmds[2]);
+    //             if(abs(encoder_target1-encoder_pos1)<abs(encoder_target1+1200-encoder_pos1) &&abs(encoder_target1-encoder_pos1)<abs(encoder_target1-1200-encoder_pos1))
+    //             pos1_pid.setpoint(encoder_target1);
+    //             else if(abs(encoder_target1+1200-encoder_pos1)<abs(encoder_target1-encoder_pos1) && abs(encoder_target1+1200-encoder_pos1)<abs(encoder_target1-1200-encoder_pos1))
+    //             {
+    //                 pos1_pid.setpoint(encoder_target1+1200);
+    //                 encoder_target1+=1200;
+    //             }
+    //             else 
+    //             {
+    //                 pos1_pid.setpoint(encoder_target1-1200);
+    //                 encoder_target1-=1200;
+    //             }
+
+    //         }
+    //         else if(cmds[1]=="2")
+    //         {
+    //             encoder_target2=string_to_int(cmds[2]);
+    //             if(abs(encoder_target2-encoder_pos2)<abs(encoder_target2+900-encoder_pos2) &&abs(encoder_target2-encoder_pos2)<abs(encoder_target2-900-encoder_pos2))
+    //             pos2_pid.setpoint(encoder_target2);
+    //             else if(abs(encoder_target2+900-encoder_pos2)<abs(encoder_target2-encoder_pos2) && abs(encoder_target2+900-encoder_pos2)<abs(encoder_target2-900-encoder_pos2))
+    //             {
+    //                 pos2_pid.setpoint(encoder_target2+900);
+    //                 encoder_target2+=900;
+    //             }
+    //             else 
+    //             {
+    //                 pos2_pid.setpoint(encoder_target2-900);
+    //                 encoder_target2-=900;
+    //             }
+    //         }
+    //         ;
+    //     }
+    // }
 
     else if(cmds[0]=="Stepper")
     {
@@ -444,42 +507,103 @@ void loop()
 			}
 		}
     }
+    else if(cmds[0]=="Switch")
+    {
+        Serial.println("Switch");
+        if(sz!=2)
+        {
+            Serial.println("Command error");
+        }
+        else
+        {
+            if(cmds[1]=="1")
+            {
+                Switch1^=1;
+                digitalWrite(35,Switch1);
+            }
+            else if(cmds[1]=="2")
+            {
+                Switch2^=1;
+                digitalWrite(36,Switch2);
+            }
+            ;
+        }
     }
-    int motor_encoder1_power=pos1_pid.compute(encoder_pos1);
-    int motor_encoder2_power=-pos2_pid.compute(encoder_pos2);
-	
-	// hand1.write(hand1_pos);
-    // hand2.write(hand1_pos);
-    // hand3.write(hand1_pos);
-    // hand4.write(hand1_pos);
-    // ball_catcher_left.write(hand1_pos);
-    // ball_catcher_right.write(hand1_pos);
+    // else if(cmds[0]=="Tune")
+    // {
+    //     update_make=true;
+    //     Serial.println("Tune");
+    //     if(sz!=3)
+    //     {
+    //         Serial.println("Command error");
+    //     }
+    //     else
+    //     {
+    //         if(cmds[1]=="1")
+    //         {
+    //             int tune_level=string_to_int(cmds[2]);
+    //             if(tune_level<-100 ||tune_level>100)
+    //             {
+    //                 Serial.println("Command error");
+    //             }
+    //             else 
+    //             {
+    //                 encoder_pos1-=tune_level;
+    //                 // encoder_target1+=tune_level;
+    //                 // pos1_pid.setpoint(encoder_target1);
+    //             }
 
-    //rotate1.set_speed(motor_encoder1_power);
-    //rotate2.set_speed(motor_encoder2_power);
+    //         }
+    //         else if(cmds[1]=="2")
+    //         {
+    //             int tune_level=string_to_int(cmds[2]);
+    //             if(tune_level<-100 ||tune_level>100)
+    //             {
+    //                 Serial.println("Command error");
+    //             }
+    //             else 
+    //             {
+    //                 encoder_pos2-=tune_level;
+    //                 // encoder_target2+=tune_level;
+    //                 // pos2_pid.setpoint(encoder_target2);
+    //             }
+    //         }
+    //         ;
+    //     }
+    // }
+    }
+    // int motor_encoder1_power=pos1_pid.compute(encoder_pos1);
+    // int motor_encoder2_power=-pos2_pid.compute(encoder_pos2);
+	
+	hand1.write(hand1_pos);
+    hand2.write(hand2_pos);
+    hand3.write(hand3_pos);
+    hand4.write(hand4_pos);
+    ball_catcher_left.write(ball_catcher_left_pos);
+    ball_catcher_right.write(ball_catcher_right_pos);
+
 
     
     if(update_make){
     Serial.print("Motor ");
     Serial.print(wheel1.speed_now);Serial.print("\t");
     Serial.print(wheel2.speed_now);Serial.print("\t");
-    Serial.print(rotate1.speed_now);Serial.print("\t");
-    Serial.print(rotate2.speed_now);Serial.print("\t");
-    Serial.print(encoder_pos1);Serial.print("\t");
-    Serial.print(encoder_pos2);Serial.print("\t");
-    Serial.print(encoder_target1);Serial.print("\t");
-    Serial.print(encoder_target2);Serial.print("\t");
-    // Serial.print(motor_encoder1_power);Serial.print("\t");
-    // Serial.print(motor_encoder2_power);Serial.print("\t");
-    Serial.println("");
+    Serial.print(wheel3.speed_now);Serial.print("\t");
+    Serial.print(wheel4.speed_now);Serial.print("\t");
+    Serial.print(back_side.speed_now);Serial.print("\t");
+    
     Serial.print("Servo ");
-    Serial.print(ball_catcher_left_pos);Serial.print("\t");
-    Serial.print(ball_catcher_right_pos);Serial.print("\t");
-    Serial.print(hand1_pos);Serial.print("\t");
-    Serial.print(hand2_pos);Serial.print("\t");
-    Serial.print(hand3_pos);Serial.print("\t");
-    Serial.print(hand4_pos);Serial.print("\t");
+    Serial.print(ball_catcher_left.read());Serial.print("\t");
+    Serial.print(ball_catcher_right.read());Serial.print("\t");
+    Serial.print(hand1.read());Serial.print("\t");
+    Serial.print(hand2.read());Serial.print("\t");
+    Serial.print(hand3.read());Serial.print("\t");
+    Serial.print(hand4.read());Serial.print("\t");
+
+    // Serial.println("");
+    // Serial.println("");
     update_make=false;
     }
+    
     return;
 }
